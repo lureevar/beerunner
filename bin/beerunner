@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+
+# Global read-only variables
+declare -gr VERSION='0.0.1'
+declare -gr ARGV=("$@")
+declare -gr FILE="${ARGV[-1]}"
+declare -gr FILE_EXTENSION="${FILE##*.}"
+
+# Global variables
+declare -g directory
+declare -g compiler
+declare -g interpreter
+declare -g file_extension
+
+declare -i num_args=0
+
+# Private utility function
+function __command_exist {
+    if eval "type -P "$1" &> /dev/null"
+    then
+        return 0
+    fi
+
+    return 1
+}
+
+# Help function
+function _help {
+    eval "cat << EOF
+Usage: $0 [OPTIONS] FILE
+A simple command line application to automaticly run a beecrowd exercise
+Options:
+    -i :     Choose your preferred interpreter
+    -d :     Choose the directory where to leave the executable
+    -c :     Choose your preferred compiler
+    -h :     Show this help message
+EOF"
+    exit 0
+}
+
+# Functions for running languages
+function _c_run {
+    local path_executable
+
+    [ -z "$directory" ] && path_executable='a.out' || path_executable="${directory}/a.out"
+    [ -z "$compiler" ] && compiler='gcc'
+
+    if ! __command_exist "$compiler"
+    then
+        echo "The $compiler compiler for the C language was not found."
+        exit 1
+    fi
+
+    if ! [ -d "$directory" ] && ! [ -z "$directory" ]
+    then
+        echo "$directory directory does not exist"
+        exit 1
+    fi
+
+    echo "[Compiling the $FILE with $compiler]"
+    eval "$compiler $FILE -O2 -lm -o $path_executable"
+    echo "[Running the executable $path_executable]"
+    eval "./${path_executable}"
+    echo "[End of $FILE execution]"
+}
+
+function _python_run {
+    [ -z "$interpreter" ] && interpreter='python3'
+
+    if ! __command_exist "$interpreter"
+    then
+        echo "The $interpreter interpreter for the python language was not found"
+        exit 1
+    fi
+
+    echo "[Interpreting and running the $FILE]"
+    eval "$interpreter $FILE"
+    echo "[End of $FILE execution]"
+}
+
+function _ruby_run {
+    [ -z "$interpreter" ] && interpreter='ruby'
+
+    if ! __command_exist "$interpreter"
+    then
+        echo "The $interpreter interpreter for the ruby language was not found"
+        exit 1
+    fi
+
+    echo "[Interpreting and running the $FILE]"
+    eval "$interpreter $FILE"
+    echo "[End of $FILE execution]"
+}
+
+# Option parser
+while getopts 'hd:c:i:' opt
+do
+    case "$opt" in
+        d) directory="$OPTARG" ; ((num_args++)) ;;
+        c) compiler="$OPTARG" ; ((num_args++)) ;;
+        i) interpreter="$OPTARG" ; ((num_args++)) ;;
+        h) _help ;;
+    esac
+done
+
+# Testing arguments and derivatives
+if ! eval "find "$FILE" -type f &> /dev/null"
+then
+    echo "Missing file argument (try --help)"
+    exit 1
+fi
+
+if ! [ -f "$FILE" ]
+then
+    echo "$FILE file does not exist"
+    exit 1
+fi
+
+if [ "$FILE_EXTENSION" == "$FILE" ]
+then
+    echo "Could not recognize language from file $FILE"
+    exit 1
+fi
+
+# Main of the program
+case "$FILE_EXTENSION" in
+    'c') _c_run ;;
+    'py'|'pyt') _python_run ;;
+    'rb'|'ruby') _ruby_run ;;
+    *) echo 'This language is not yet supported' ; exit 1
+esac
