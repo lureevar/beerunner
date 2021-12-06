@@ -1,6 +1,6 @@
 # beerunner
 
-A simple command line application to automaticly run a [beecrowd](https://beecrowd.com.br/) exercise
+A simple command line application to automatically run a [beecrowd](https://beecrowd.com.br/) exercise
 
 
 ## Acknowledgements
