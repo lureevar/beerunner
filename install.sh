@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 declare -gr FILE_TO_INSTALL='bin/beerunner'
-
 declare -g INSTALL_PATH='/usr/bin'
 
 # Help function
@@ -19,7 +18,7 @@ EOF"
 
 # Private utility function
 function __is_root {
-    if ! [ "$EUID" -eq 0 ]
+    if [ "$EUID" -eq 0 ]
     then
         return 0
     fi
@@ -67,14 +66,14 @@ function _uninstall {
 # Testing arguments
 if [ "$#" -eq 0 ]
 then
-    echo "Missing option argument (try --help)"
+    echo "Missing option argument (try h)"
     exit 1
 fi
 
 # Main of the program
 case "$1" in
-    'l') INSTALL_PATH='/usr/local/bin' _install ;;
-    'g') INSTALL_PATH='/usr/bin' _install ;;
-    'u') INSTALL_PATH=$(which beerunner) _uninstall ;;
+    'l') INSTALL_PATH='/usr/local/bin' ; _install ;;
+    'g') INSTALL_PATH='/usr/bin' ; _install ;;
+    'u') INSTALL_PATH=$(which beerunner) ; _uninstall ;;
     'h') _help ; exit 0
 esac
