@@ -1,4 +1,4 @@
-[![CodeFactor](https://www.codefactor.io/repository/github/lurevar/beerunner/badge)](https://www.codefactor.io/repository/github/lurevar/beerunner)
+[![CodeFactor](https://www.codefactor.io/repository/github/lureevar/beerunner/badge)](https://www.codefactor.io/repository/github/lureevar/beerunner)
 
 # beerunner
 
